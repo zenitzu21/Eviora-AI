@@ -367,7 +367,7 @@ export default function NewScan() {
                                 <p className="font-bold text-[15px] underline mb-1">Recommended Action:</p>
                                 <p className="text-white font-medium">
                                     {scanResult.flag === 'HIGH' ? 'Meet the doctor immediately' :
-                                        scanResult.flag === 'MODERATE' ? 'Meet the doctor within 2 days' :
+                                        scanResult.flag === 'MODERATE' ? 'Go to the hospital within 3 days' :
                                             scanResult.flag === 'LOW' ? 'Check after 1 week in the app' : 'Monitor closely'}
                                 </p>
                             </div>
