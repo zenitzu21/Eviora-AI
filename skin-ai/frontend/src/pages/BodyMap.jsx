@@ -101,33 +101,38 @@ export default function BodyMap() {
                     >
                         <motion.div
                             initial={{ scale: 0.9 }} animate={{ scale: 1 }} exit={{ scale: 0.9 }}
-                            className="bg-white/95 rounded-3xl p-8 max-w-4xl w-full shadow-2xl"
+                            className="glass-card bg-[#0b1426]/95 border-2 border-primary/30 rounded-3xl p-8 max-w-4xl w-full shadow-[0_0_50px_rgba(0,240,255,0.15)]"
                             onClick={(e) => e.stopPropagation()}
                         >
                             <div className="flex justify-between items-center mb-6">
-                                <h2 className="text-2xl font-bold text-dark">Image Comparison</h2>
+                                <h2 className="text-3xl font-bold bg-gradient-to-r from-primary to-cyan-300 text-transparent bg-clip-text">Image Comparison</h2>
                                 <button onClick={() => { setCompareMode(false); setCompareScans([null, null]); }}
-                                    className="w-10 h-10 rounded-full bg-dark/10 flex items-center justify-center hover:bg-dark/20">
+                                    className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 text-white transition-colors">
                                     <X size={20} />
                                 </button>
                             </div>
                             <div className="flex gap-6">
                                 {compareScans.map((scan, i) => (
-                                    <div key={i} className="flex-1">
-                                        <div className="rounded-2xl overflow-hidden border-2 border-dark/10 mb-4 h-64 bg-dark/5">
-                                            <img src={scan.imageUrl} alt={`Scan ${i + 1}`} className="w-full h-full object-cover" />
+                                    <div key={i} className="flex-1 bg-white/5 rounded-2xl p-4 border border-white/10 flex flex-col">
+                                        <div className="rounded-xl overflow-hidden border-2 border-white/10 mb-4 h-64 bg-black/50">
+                                            <img src={scan.imageUrl} alt={`Scan ${i + 1}`} className="w-full h-full object-contain" />
                                         </div>
-                                        <p className="font-bold text-lg text-dark">{scan.date}</p>
-                                        <p className="text-sm text-dark/60">{scan.bodyPartLabel}</p>
-                                        <p className="text-sm text-dark/60">Prediction: {scan.prediction} ({scan.confidence}%)</p>
-                                        <span className={`inline-block mt-2 text-xs font-bold px-3 py-1 rounded-lg ${FLAG_STYLES[scan.riskFlag] || 'bg-gray-100'}`}>
-                                            {scan.riskFlag} — Score {scan.riskScore}/100
-                                        </span>
+                                        <p className="font-bold text-lg text-white mb-1">{scan.date}</p>
+                                        <p className="text-sm text-primary font-semibold mb-2">{scan.bodyPartLabel}</p>
+                                        <div className="bg-black/30 p-3 rounded-lg border border-white/5 mb-2">
+                                            <p className="text-sm text-white/80">Prediction: <span className="font-bold text-white">{scan.prediction}</span> ({scan.confidence}%)</p>
+                                        </div>
+                                        <div className="mt-auto pt-2">
+                                            <span className={`inline-block text-xs uppercase font-bold px-3 py-1.5 rounded-lg border shadow-sm ${FLAG_STYLES[scan.riskFlag] || 'bg-gray-100 text-dark'}`}>
+                                                {scan.riskFlag} RISK — Score {scan.riskScore}/100
+                                            </span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
-                            <div className="mt-6 p-4 bg-blue-50 rounded-xl text-sm text-blue-800">
-                                <strong>Comparison Note:</strong> Review visual changes in size, color, border regularity, and symmetry between the two scans.
+                            <div className="mt-6 p-4 bg-primary/10 border border-primary/30 rounded-xl text-sm text-white/80 flex items-center gap-4">
+                                <AlertTriangle className="text-primary flex-shrink-0" size={24} />
+                                <p><strong>Comparison Note:</strong> Review visual changes in size, color, border regularity, and symmetry between the two scans. If the lesion has evolved significantly, consult your dermatologist.</p>
                             </div>
                         </motion.div>
                     </motion.div>
