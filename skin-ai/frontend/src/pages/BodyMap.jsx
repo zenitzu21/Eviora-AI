@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowLeftRight, Clock, AlertTriangle } from 'lucide-react';
+import { X, ArrowLeftRight, Clock, AlertTriangle, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
 
 const bodyRegions = [
     { id: 'head', label: 'Head', top: '2%', left: '40%', width: '20%', height: '12%' },
@@ -38,6 +39,43 @@ export default function BodyMap() {
     const regionInfo = bodyRegions.find(r => r.id === selectedRegion);
 
     const hasScansForRegion = (regionId) => scans.some(s => s.bodyPart === regionId);
+
+    const generatePDF = (scan) => {
+        const doc = new jsPDF();
+        doc.setFontSize(22);
+        doc.setTextColor(0, 240, 255);
+        doc.text('Eviora AI - Scan Report', 20, 20);
+
+        doc.setFontSize(12);
+        doc.setTextColor(50, 50, 50);
+        doc.text(`Date of Scan: ${scan.date}`, 20, 40);
+        doc.text(`Body Region: ${scan.bodyPartLabel}`, 20, 50);
+        doc.text(`AI Prediction: ${scan.prediction}`, 20, 60);
+        doc.text(`Confidence Level: ${scan.confidence}%`, 20, 70);
+
+        doc.setFontSize(14);
+        if (scan.riskFlag === 'HIGH') doc.setTextColor(225, 29, 72);
+        else if (scan.riskFlag === 'MODERATE') doc.setTextColor(59, 130, 246);
+        else doc.setTextColor(6, 182, 212);
+
+        doc.text(`Risk Flag: ${scan.riskFlag}`, 20, 90);
+        doc.text(`Risk Score: ${scan.riskScore} / 100`, 20, 100);
+
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.text('Disclaimer: This is an AI-assisted screening prototype and is NOT a clinical diagnosis.', 20, 120, { maxWidth: 170 });
+
+        if (scan.imageUrl) {
+            try {
+                const imgFormat = scan.imageUrl.includes('png') ? 'PNG' : 'JPEG';
+                doc.addImage(scan.imageUrl, imgFormat, 20, 135, 120, 120);
+            } catch (e) {
+                console.error('Could not add image to PDF:', e);
+            }
+        }
+
+        doc.save(`Eviora_AI_Scan_${scan.bodyPartLabel}_${scan.date.replace(/ /g, '_')}.pdf`);
+    };
 
     const toggleCompare = (scan) => {
         if (compareScans[0]?.id === scan.id) {
@@ -204,9 +242,14 @@ export default function BodyMap() {
                                                     <div className="flex-1">
                                                         <div className="flex justify-between items-start mb-1">
                                                             <span className="font-bold text-sm">{scan.date}</span>
-                                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${FLAG_STYLES[scan.riskFlag] || 'bg-gray-100'}`}>
-                                                                {scan.riskFlag}
-                                                            </span>
+                                                            <div className="flex items-center gap-2">
+                                                                <button onClick={() => generatePDF(scan)} title="Download PDF Report" className="text-dark/40 hover:text-primary transition-colors p-1 bg-white/20 hover:bg-white/40 rounded">
+                                                                    <Download size={14} />
+                                                                </button>
+                                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${FLAG_STYLES[scan.riskFlag] || 'bg-gray-100'}`}>
+                                                                    {scan.riskFlag}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                         <p className="text-xs text-dark/70">{scan.prediction} ({scan.confidence}%)</p>
                                                         <p className="text-xs text-dark/50">Score: {scan.riskScore}/100</p>
