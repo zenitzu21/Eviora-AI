@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileDown, FileText, Download } from 'lucide-react';
+import { FileDown, FileText, Download, Trash2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 export default function DownloadReport() {
@@ -10,6 +10,14 @@ export default function DownloadReport() {
         const stored = JSON.parse(localStorage.getItem('skinai_scans') || '[]');
         setReports(stored.slice().reverse()); // Show newest first
     }, []);
+
+    const deleteScan = (scanId) => {
+        if (!window.confirm("Are you sure you want to completely delete this diagnostic report?")) return;
+        const stored = JSON.parse(localStorage.getItem('skinai_scans') || '[]');
+        const updatedScans = stored.filter(s => s.id !== scanId);
+        localStorage.setItem('skinai_scans', JSON.stringify(updatedScans));
+        setReports(updatedScans.slice().reverse());
+    };
 
     const handleDownload = (scan) => {
         const doc = new jsPDF();
@@ -98,12 +106,22 @@ export default function DownloadReport() {
                                 <span className="text-[10px] uppercase font-bold tracking-wider opacity-40">{report.riskFlag} RISK IDENTIFIED</span>
                             </div>
 
-                            <button
-                                onClick={() => handleDownload(report)}
-                                className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-md group-hover:scale-110"
-                            >
-                                <Download size={20} />
-                            </button>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => deleteScan(report.id)}
+                                    title="Delete Report"
+                                    className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-rose-500/80 hover:text-white transition-all shadow-md group-hover:scale-105"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                                <button
+                                    onClick={() => handleDownload(report)}
+                                    title="Download PDF"
+                                    className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-primary hover:text-white transition-all shadow-md group-hover:scale-110"
+                                >
+                                    <Download size={20} />
+                                </button>
+                            </div>
                         </div>
                     </motion.div>
                 ))}

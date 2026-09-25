@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowLeftRight, Clock, AlertTriangle, Download } from 'lucide-react';
+import { X, ArrowLeftRight, Clock, AlertTriangle, Download, Trash2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 const bodyRegions = [
@@ -39,6 +39,14 @@ export default function BodyMap() {
     const regionInfo = bodyRegions.find(r => r.id === selectedRegion);
 
     const hasScansForRegion = (regionId) => scans.some(s => s.bodyPart === regionId);
+
+    const deleteScan = (scanId) => {
+        if (!window.confirm("Are you sure you want to delete this scan from your history?")) return;
+        const stored = JSON.parse(localStorage.getItem('skinai_scans') || '[]');
+        const updatedScans = stored.filter(s => s.id !== scanId);
+        localStorage.setItem('skinai_scans', JSON.stringify(updatedScans));
+        setScans(updatedScans);
+    };
 
     const generatePDF = (scan) => {
         const doc = new jsPDF();
@@ -247,11 +255,14 @@ export default function BodyMap() {
                                                     <div className="flex-1">
                                                         <div className="flex justify-between items-start mb-1">
                                                             <span className="font-bold text-sm">{scan.date}</span>
-                                                            <div className="flex items-center gap-2">
+                                                            <div className="flex items-center gap-1">
+                                                                <button onClick={() => deleteScan(scan.id)} title="Delete Scan" className="text-dark/40 hover:text-red-500 transition-colors p-1 bg-white/20 hover:bg-white/40 rounded">
+                                                                    <Trash2 size={13} />
+                                                                </button>
                                                                 <button onClick={() => generatePDF(scan)} title="Download PDF Report" className="text-dark/40 hover:text-primary transition-colors p-1 bg-white/20 hover:bg-white/40 rounded">
                                                                     <Download size={14} />
                                                                 </button>
-                                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${FLAG_STYLES[scan.riskFlag] || 'bg-gray-100'}`}>
+                                                                <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${FLAG_STYLES[scan.riskFlag] || 'bg-gray-100'} ml-1`}>
                                                                     {scan.riskFlag}
                                                                 </span>
                                                             </div>
