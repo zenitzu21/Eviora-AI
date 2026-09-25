@@ -47,8 +47,19 @@ def synthesize_demo_overlays(image_path, spread, text_label):
     
     heat_img = img.copy()
     mask = np.zeros((h, w), dtype=np.uint8)
-    cv2.circle(mask, (bx + side_w//2, by + side_h//2), min(side_w, side_h)//2, 255, -1)
-    mask = cv2.GaussianBlur(mask, (71, 71), 0)
+    
+    # Generate an organic, irregular heatmap using overlapping random ellipses
+    import random
+    cx, cy = bx + side_w // 2, by + side_h // 2
+    for _ in range(6):
+        ox = cx + random.randint(int(-side_w * 0.2), int(side_w * 0.2))
+        oy = cy + random.randint(int(-side_h * 0.2), int(side_h * 0.2))
+        ax1 = random.randint(int(side_w * 0.2), int(side_w * 0.5))
+        ax2 = random.randint(int(side_h * 0.2), int(side_h * 0.5))
+        angle = random.randint(0, 180)
+        cv2.ellipse(mask, (ox, oy), (ax1, ax2), angle, 0, 360, 255, -1)
+        
+    mask = cv2.GaussianBlur(mask, (121, 121), 0)
     colormap = cv2.applyColorMap(mask, cv2.COLORMAP_JET)
     
     alpha = mask.astype(float) / 255.0
